@@ -10,6 +10,32 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// run_binom_mixture_perm_test
+List run_binom_mixture_perm_test(IntegerVector x, NumericVector y, double alpha);
+RcppExport SEXP _permtools_run_binom_mixture_perm_test(SEXP xSEXP, SEXP ySEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_binom_mixture_perm_test(x, y, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_binomial_right_tail_prob
+double compute_binomial_right_tail_prob(int n, double p, int k);
+RcppExport SEXP _permtools_compute_binomial_right_tail_prob(SEXP nSEXP, SEXP pSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_binomial_right_tail_prob(n, p, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // timesTwo
 NumericVector timesTwo(NumericVector x);
 RcppExport SEXP _permtools_timesTwo(SEXP xSEXP) {
@@ -23,6 +49,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_permtools_run_binom_mixture_perm_test", (DL_FUNC) &_permtools_run_binom_mixture_perm_test, 3},
+    {"_permtools_compute_binomial_right_tail_prob", (DL_FUNC) &_permtools_compute_binomial_right_tail_prob, 3},
     {"_permtools_timesTwo", (DL_FUNC) &_permtools_timesTwo, 1},
     {NULL, NULL, 0}
 };

@@ -14,11 +14,12 @@
 #' n <- 100
 #' y <- rnorm(100)
 #' x <- y > median(y)
-#' swap_idxs <- sample(x = seq_along(x), size = 20)
+#' swap_idxs <- sample(x = seq_along(x), size = 35)
 #' x[swap_idxs] <- !x[swap_idxs]
 #' target_alpha <- 0.05
 #' res <- run_binom_mixture_perm_test(x, y, target_alpha)
-run_binom_mixture_perm_test <- function(x, y, target_alpha = 0.05) {
+run_binom_mixture_perm_test_r <- function(x, y, target_alpha = 0.05) {
+  set.seed(4)
   # compute n nonzero entries
   n <- length(x)
   n_trt <- sum(x)
@@ -38,7 +39,6 @@ run_binom_mixture_perm_test <- function(x, y, target_alpha = 0.05) {
 
   # initialize vars related to wealth
   max_wealth <- 0
-  min_wealth <- Inf
   max_wealth_threshold <- 1/target_alpha
   rank <- 1L
   n_permutations <- 0L
@@ -54,6 +54,7 @@ run_binom_mixture_perm_test <- function(x, y, target_alpha = 0.05) {
     trt_sum <- sum(y[x_perm])
     cntrl_sum <- sum_y - trt_sum
     curr_test_stat <- trt_sum/n_trt - cntrl_sum/n_cntrl
+
     # check for a loss
     if (curr_test_stat >= orig_test_stat) rank <- rank + 1L
 
@@ -75,3 +76,4 @@ run_binom_mixture_perm_test <- function(x, y, target_alpha = 0.05) {
   out <- list(p = min(1, 1/max_wealth), n_permutations = n_permutations)
   return(out)
 }
+
