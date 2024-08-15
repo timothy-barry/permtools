@@ -8,13 +8,10 @@ using boost::math::binomial;
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-List run_binom_mixture_perm_test(IntegerVector x, NumericVector y, double alpha) {
+List run_bc_perm_test(IntegerVector x, NumericVector y, int h = 15) {
   // define variables
-  int n = x.length(), n_trt = 0, n_cntrl = 0, min_permutations_futility = 50,
-    max_permutations = 10000, rank = 1, n_permutations = 0;
-  double total_sum = 0, trt_sum = 0, cntrl_sum = 0, orig_test_stat = 0, curr_test_stat = 0,
-    n_trt_double = 0, n_cntrl_double = 0, c = 0.9 * alpha, min_wealth_threshold = alpha,
-    curr_wealth = 0, max_wealth_threshold = 1/alpha;
+  int n = x.length(), n_trt = 0, n_cntrl = 0, max_permutations = 10000, n_losses = 1, n_permutations = 0;
+  double p = 0, total_sum = 0, trt_sum = 0, cntrl_sum = 0, orig_test_stat = 0, curr_test_stat = 0, n_trt_double = 0, n_cntrl_double = 0;
   bool stop = false;
   IntegerVector trt_idxs;
 
@@ -53,20 +50,16 @@ List run_binom_mixture_perm_test(IntegerVector x, NumericVector y, double alpha)
     curr_test_stat = trt_sum/n_trt_double - cntrl_sum/n_cntrl_double;
 
     // check for a loss
-    if (curr_test_stat >= orig_test_stat) rank ++;
+    if (curr_test_stat >= orig_test_stat) n_losses ++;
 
-    // compute and evaluate wealth
-    curr_wealth = cdf(complement(binomial(n_permutations + 1, c), rank - 1))/c;
-
-    if (curr_wealth >= max_wealth_threshold) {
-      stop = true;
-    } else if (curr_wealth <= min_wealth_threshold && n_permutations >= min_permutations_futility) {
+    // determine stop
+    if (n_losses == h) {
+      p = static_cast<double>(n_losses)/static_cast<double>(n_permutations);
       stop = true;
     } else if (n_permutations == max_permutations) {
+      p = (static_cast<double>(n_losses) + 1.0)/(static_cast<double>(max_permutations) + 1.0);
       stop = true;
-      if (curr_wealth >= distribution(generator)/alpha) curr_wealth = 1/alpha;
     }
   }
-  double p = std::min(1/curr_wealth, 1.0);
   return List::create(Named("p") = p, Named("n_permutations") = n_permutations);
 }
