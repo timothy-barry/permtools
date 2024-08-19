@@ -12,21 +12,19 @@
 #' @examples
 #' n <- 100L
 #' m <- 1000L
-#' X <- matrix(sample(x = c(0L, 1L), size = n * m, replace = TRUE), nrow = n, ncol = m)
+#' X <- sample(x = c(0L, 1L), size = n, replace = TRUE)
 #' under_null <- sample(c(TRUE, FALSE), size = m, prob = c(0.95, 0.05), replace = TRUE)
 #' Y <- sapply(X = seq_len(m), FUN = function(i) {
-#'  col <- X[,i]
-#'  Y <- rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * col), sd = 1)
+#'   rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * X), sd = 1)
 #' })
 #' h <- 15L; alpha <- 0.1
-#' r <- sapply(seq(1, m), function(i) cor(X[,i], Y[,i]))
-#' res <- run_bc_multiple_test_2(X, Y, alpha = alpha)
+#' res <- run_bc_multiple_test_r_v2(X, Y, alpha = alpha)
 #' mean(under_null[res |> filter(significant) |> pull(hypothesis_idx)])
-run_bc_multiple_test_2 <- function(X, Y, h = 15L, alpha = 0.1) {
+run_bc_multiple_test_r_v2 <- function(X, Y, h = 15L, alpha = 0.1) {
   set.seed(4)
   # initialize other variables
-  n <- nrow(X) # sample size
-  m <- ncol(X) # number of hypotheses
+  n <- nrow(Y) # sample size
+  m <- ncol(Y) # number of hypotheses
   t <- 0L # current time
 
   # initialize active, futility, and rejected sets
@@ -42,10 +40,9 @@ run_bc_multiple_test_2 <- function(X, Y, h = 15L, alpha = 0.1) {
   compute_test_stat <- function(x, y) mean(y[x == 1L]) - mean(y[x == 0L])
 
   # compute the original test statistics
-  for (i in seq_len(m)) original_test_statistics[i] <- compute_test_stat(X[,i], Y[,i])
+  for (i in seq_len(m)) original_test_statistics[i] <- compute_test_stat(X, Y[,i])
 
   # iterate through time
-  # for (k in seq_len(50000)) {
   for (k in seq_len(50000)) {
     # increment t
     t <- t + 1L
@@ -56,7 +53,7 @@ run_bc_multiple_test_2 <- function(X, Y, h = 15L, alpha = 0.1) {
       # if in the active set, compute the test statistic and update gamma
       if (active_set[i]) {
         # compute the test statistic
-        curr_test_stat <- compute_test_stat(x = X[perm_sample, i], y = Y[,i])
+        curr_test_stat <- compute_test_stat(x = X[perm_sample], y = Y[,i])
         # determine whether we have a loss; if so, increment n_losses
         n_losses[i] <- n_losses[i] + as.integer(curr_test_stat >= original_test_statistics[i])
       }
