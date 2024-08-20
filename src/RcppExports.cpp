@@ -36,6 +36,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// run_bc_multiple_test
+List run_bc_multiple_test(IntegerVector x, List Y, int h, double alpha);
+RcppExport SEXP _permtools_run_bc_multiple_test(SEXP xSEXP, SEXP YSEXP, SEXP hSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< List >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< int >::type h(hSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_bc_multiple_test(x, Y, h, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 // timesTwo
 NumericVector timesTwo(NumericVector x);
 RcppExport SEXP _permtools_timesTwo(SEXP xSEXP) {
@@ -51,6 +65,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_permtools_run_bc_perm_test", (DL_FUNC) &_permtools_run_bc_perm_test, 3},
     {"_permtools_run_binom_mixture_perm_test", (DL_FUNC) &_permtools_run_binom_mixture_perm_test, 3},
+    {"_permtools_run_bc_multiple_test", (DL_FUNC) &_permtools_run_bc_multiple_test, 4},
     {"_permtools_timesTwo", (DL_FUNC) &_permtools_timesTwo, 1},
     {NULL, NULL, 0}
 };

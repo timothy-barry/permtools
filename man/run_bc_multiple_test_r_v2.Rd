@@ -4,10 +4,10 @@
 \alias{run_bc_multiple_test_r_v2}
 \title{Run BC multiple testing procedure}
 \usage{
-run_bc_multiple_test_r_v2(X, Y, h = 15L, alpha = 0.1)
+run_bc_multiple_test_r_v2(x, Y, h = 15L, alpha = 0.1)
 }
 \arguments{
-\item{X}{an n by m matrix of treatments}
+\item{x}{an n by m matrix of treatments}
 
 \item{Y}{an n by m matrix of responses}
 
@@ -22,12 +22,17 @@ Runs the permutation test based on the anytime-valid BC p-value and BH correctio
 \examples{
 n <- 100L
 m <- 1000L
-X <- sample(x = c(0L, 1L), size = n, replace = TRUE)
+x <- sample(x = c(0L, 1L), size = n, replace = TRUE)
 under_null <- sample(c(TRUE, FALSE), size = m, prob = c(0.95, 0.05), replace = TRUE)
 Y <- sapply(X = seq_len(m), FUN = function(i) {
-  rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * X), sd = 1)
+  rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * x), sd = 1)
 })
 h <- 15L; alpha <- 0.1
-res <- run_bc_multiple_test_r_v2(X, Y, alpha = alpha)
-mean(under_null[res |> filter(significant) |> pull(hypothesis_idx)])
+res_r <- run_bc_multiple_test_r_v2(x, Y, alpha = alpha)
+mean(under_null[res_r |> filter(significant) |> pull(hypothesis_idx)])
+
+# c++ version
+Y_list <- apply(X = Y, MARGIN = 2, FUN = function(col) col, simplify = FALSE)
+res <- run_bc_multiple_test(x, Y_list, h, alpha)
+mean(under_null[which(res)])
 }

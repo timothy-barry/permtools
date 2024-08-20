@@ -9,6 +9,10 @@ run_binom_mixture_perm_test <- function(x, y, alpha) {
     .Call(`_permtools_run_binom_mixture_perm_test`, x, y, alpha)
 }
 
+run_bc_multiple_test <- function(x, Y, h, alpha) {
+    .Call(`_permtools_run_bc_multiple_test`, x, Y, h, alpha)
+}
+
 timesTwo <- function(x) {
     .Call(`_permtools_timesTwo`, x)
 }

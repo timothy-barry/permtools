@@ -2,7 +2,7 @@
 #'
 #' Runs the permutation test based on the anytime-valid BC p-value and BH correction.
 #'
-#' @param X an n by m matrix of treatments
+#' @param x an n by m matrix of treatments
 #' @param Y an n by m matrix of responses
 #' @param h the tuning parameter anytime-balid BC p-value
 #'
@@ -12,15 +12,20 @@
 #' @examples
 #' n <- 100L
 #' m <- 1000L
-#' X <- sample(x = c(0L, 1L), size = n, replace = TRUE)
+#' x <- sample(x = c(0L, 1L), size = n, replace = TRUE)
 #' under_null <- sample(c(TRUE, FALSE), size = m, prob = c(0.95, 0.05), replace = TRUE)
 #' Y <- sapply(X = seq_len(m), FUN = function(i) {
-#'   rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * X), sd = 1)
+#'   rnorm(n = n, mean = 2 + (if (under_null[i]) 0 else 2 * x), sd = 1)
 #' })
 #' h <- 15L; alpha <- 0.1
-#' res <- run_bc_multiple_test_r_v2(X, Y, alpha = alpha)
-#' mean(under_null[res |> filter(significant) |> pull(hypothesis_idx)])
-run_bc_multiple_test_r_v2 <- function(X, Y, h = 15L, alpha = 0.1) {
+#' res_r <- run_bc_multiple_test_r_v2(x, Y, alpha = alpha)
+#' mean(under_null[res_r |> filter(significant) |> pull(hypothesis_idx)])
+#'
+#' # c++ version
+#' Y_list <- apply(X = Y, MARGIN = 2, FUN = function(col) col, simplify = FALSE)
+#' system.time(res <- run_bc_multiple_test(x, Y_list, h, alpha))
+#' mean(under_null[which(res)])
+run_bc_multiple_test_r_v2 <- function(x, Y, h = 15L, alpha = 0.1) {
   set.seed(4)
   # initialize other variables
   n <- nrow(Y) # sample size
@@ -34,13 +39,12 @@ run_bc_multiple_test_r_v2 <- function(X, Y, h = 15L, alpha = 0.1) {
   stop_times <- integer(m)
   original_test_statistics <- integer(length = m)
   n_losses <- integer(m)
-  gamma <- integer(m)
 
   # function to compute the test statistic
   compute_test_stat <- function(x, y) mean(y[x == 1L]) - mean(y[x == 0L])
 
   # compute the original test statistics
-  for (i in seq_len(m)) original_test_statistics[i] <- compute_test_stat(X, Y[,i])
+  for (i in seq_len(m)) original_test_statistics[i] <- compute_test_stat(x, Y[,i])
 
   # iterate through time
   for (k in seq_len(50000)) {
@@ -53,7 +57,7 @@ run_bc_multiple_test_r_v2 <- function(X, Y, h = 15L, alpha = 0.1) {
       # if in the active set, compute the test statistic and update gamma
       if (active_set[i]) {
         # compute the test statistic
-        curr_test_stat <- compute_test_stat(x = X[perm_sample], y = Y[,i])
+        curr_test_stat <- compute_test_stat(x = x[perm_sample], y = Y[,i])
         # determine whether we have a loss; if so, increment n_losses
         n_losses[i] <- n_losses[i] + as.integer(curr_test_stat >= original_test_statistics[i])
       }
