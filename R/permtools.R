@@ -1,4 +1,4 @@
-#' sceptre
+#' permtools
 #'
 #' `permtools` is an R package providing tools for permutation testing.
 #'

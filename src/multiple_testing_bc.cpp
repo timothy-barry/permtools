@@ -90,7 +90,7 @@ List run_bc_multiple_test(IntegerVector x, List Y, int h, double alpha) {
   }
   // compute the p-values
   for (int i = 0; i < m; i ++) {
-    p_values[i] = h_doub/(stop_times[i] - static_cast<double>(n_losses[i]) + h);
+    p_values[i] = h_doub/(stop_times[i] - static_cast<double>(n_losses[i]) + h_doub);
   }
 
   return List::create(Named("p_values") = p_values, Named("rejected") = rejected_set);
